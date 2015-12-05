@@ -42,6 +42,7 @@ class _Undefined(object):
 
 
 __undefined__ = _Undefined()
+__default_lock_factory__ = threading.RLock
 
 
 class ObservableMixin(object):
@@ -49,7 +50,7 @@ class ObservableMixin(object):
     __any_event__ = '__any_event__'
 
     def __init__(self, *args, observable_events=__undefined__, observers=__undefined__,
-                 lock_factory=threading.RLock, **kwargs):
+                 lock_factory=__default_lock_factory__, **kwargs):
         if observable_events is __undefined__:
             raise ValueError("parameter 'observable_events' must be specified in construction")
         super().__init__(*args, **kwargs)
@@ -57,8 +58,7 @@ class ObservableMixin(object):
         self._events = {ev: set() for ev in observable_events}
         self._events[self.__any_event__] = set()
         # Thread safety:
-        self.__lock_factory = lock_factory
-        self._lock = self.__lock_factory()
+        self._lock = lock_factory()
 
     def events(self):
         yield from self._events.keys()
@@ -80,6 +80,9 @@ class ObservableMixin(object):
     def _signal_observers(self, *args, event=__undefined__, **kwargs):
         if event not in self._events:
             raise KeyError('unknown specified event: {}'.format(event))
+        # Add 'event' parameter to forwarded kwargs:
+        kwargs['event'] = event
+        # Make a tmp copy of callbacks in order to release the lock as quick as possible:
         with self._lock:
             callbacks = {
                 ev: copy.copy(self._events[ev]) for ev in (event, self.__any_event__)
@@ -87,4 +90,4 @@ class ObservableMixin(object):
         # Lock released, now we can invoke all callbacks:
         for ev, callbacks in callbacks.items():
             for cb in callbacks:
-                cb(*args, event=event, **kwargs)
+                cb(*args, **kwargs)
