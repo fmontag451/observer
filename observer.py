@@ -40,25 +40,25 @@ __all__ = (
 
 
 class _Undefined(object):
-    pass
+    """ Dummy type to be used as a replacement for ``None`` values. """
 
 
 __undefined__ = _Undefined()
 
 
 class ObservableMixin(object):
+
     __any_event__ = '__any_event__'
 
-    def __init__(self, *args, observable_events=__undefined__, observers=__undefined__, lock_factory=threading.RLock,
-                 **kwargs):
+    def __init__(self, *args, observable_events=__undefined__, observers=__undefined__,
+                 lock_factory=threading.RLock, **kwargs):
         if observable_events is __undefined__:
             raise ValueError("parameter 'observable_events' must be specified in construction")
         super().__init__(*args, **kwargs)
-        # Configuration:
-        # event -> callbacks
+        # Storage setup: event -> callbacks
         self._events = {ev: set() for ev in observable_events}
         self._events[self.__any_event__] = set()
-        # threadsafety
+        # Thread safety:
         self.__lock_factory = lock_factory
         self._lock = self.__lock_factory()
 
@@ -86,7 +86,7 @@ class ObservableMixin(object):
             callbacks = {
                 ev: copy.copy(self._events[ev]) for ev in (event, self.__any_event__)
             }
-        # Lock released, now we can calmly  invoke all callbacks:
+        # Lock released, now we can invoke all callbacks:
         for ev, callbacks in callbacks.items():
             for cb in callbacks:
                 cb(*args, event=event, **kwargs)

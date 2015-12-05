@@ -34,17 +34,6 @@ if __name__ == "__main__":
     finally:
         del sys.path[0]
     
-    def read_requirements(*filenames):
-        requirements = []
-        for filename in filenames:
-            fpath = os.path.join(os.getcwd(), 'requirements', filename + '.txt')
-            with open(fpath, "r") as f_in:
-                for line in f_in:
-                    requirement = line.strip()
-                    if not requirement in requirements:
-                        requirements.append(requirement)
-        return requirements
-    
     # search executables
     scripts = []
     for filepath in glob.glob('bin/*'):
@@ -67,10 +56,9 @@ if __name__ == "__main__":
         requires=[],
         description="Python Observer Pattern",
         author="Federico Ficarelli",
-        author_email="federico.ficarelli@gmail.com",
+        author_email="toroidh@gmail.com",
         install_requires=(),
         package_data={},
-        #data_files=data_files,
         url="https://github.com/fmontag451/observer",
         packages=packages,
         scripts=scripts,
