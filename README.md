@@ -1,2 +1,0 @@
-# observer
-Python Observer Pattern
