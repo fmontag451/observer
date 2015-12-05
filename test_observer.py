@@ -14,29 +14,60 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pytest
+
 from observer import *
 
+@pytest.fixture
+def observable_type():
+    class MyObservable(ObservableMixin):
+        def __init__(self, *args, **kwargs):
+            events = ('ev1', 'ev2', 'ev3')
+            super().__init__(*args, observable_events=events, **kwargs)
+    return MyObservable
 
-class MyObservable(ObservableMixin):
 
-    def __init__(self, *args, **kwargs):
-        events = ('ev1', 'ev2', 'ev3')
-        super().__init__(*args, observable_events=events, **kwargs)
+@pytest.fixture
+def observable(observable_type):
+    return observable_type()
 
 
-def test_observer():
+def test_any_event(observable):
+    pass
+
+
+def test_remove_observer(observable):
+    pass
+
+
+def test_none_event(observable):
+    pass
+
+
+def test_unknown_event(observable):
+    with pytest.raises(KeyError):
+        observable.add_observer(print, 'unknown')
+
+
+def test_observers(observable):
     results = set()
-
     def callback(*args, event=None, canary=None, **kwargs):
-        assert canary == "TESTVALUE"
+        assert canary == "testvalue"
         results.add(event)
-
-    obs = MyObservable()
-
-    for ev in obs.events():
-        obs.add_observer(callback, ev)
-
-    for ev in obs.events():
-        obs._signal_observers(event=ev, canary="TESTVALUE")
-
-    assert len(results.difference(set(obs.events()))) == 0
+    # Register all observers
+    for ev in observable.events():
+        observable.add_observer(callback, ev)
+    # Trigger all events
+    for ev in observable.events():
+        observable._signal_observers(event=ev, canary="testvalue")
+    # Check that every event has been triggered
+    assert len(results.difference(set(observable.events()))) == 0
+    # Reset
+    results.clear()
+    # Remove all observers
+    observable.remove_observer(callback)
+    # Trigger all events
+    for ev in observable.events():
+        observable._signal_observers(event=ev)
+    # Check that no callback has been triggered
+    assert len(results) == 0
