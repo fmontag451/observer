@@ -75,7 +75,7 @@ class ObservableMixin(object):
         with self._lock:
             for event in events:
                 if event in self._events and callback in self._events[event]:
-                    self._events[event].remove_observer(callback)
+                    self._events[event].remove(callback)
 
     def _signal_observers(self, *args, event=__undefined__, **kwargs):
         if event not in self._events:
