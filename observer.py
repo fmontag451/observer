@@ -23,15 +23,12 @@ Types and utilities related to the `Observer Pattern <https://sourcemaking.com/d
 
 import copy
 import threading
-import collections
 
-_VersionInfo = collections.namedtuple('VersionInfo', ('major', 'minor', 'patch',))
-_VERSION_INFO = _VersionInfo(major=0, minor=0, patch=1)
 
 __author__ = 'Federico Ficarelli'
 __copyright__ = 'Copyright (c) 2015 Federico Ficarelli'
 __license__ = 'Apache License Version 2.0'
-__version__ = '.'.join(str(v) for v in _VERSION_INFO)
+__version__ = '0.0.1'
 
 
 __all__ = (
@@ -40,7 +37,8 @@ __all__ = (
 
 
 class _Undefined(object):
-    """ Dummy type to be used as a replacement for ``None`` values. """
+    """Dummy type to be used as a replacement for *unspecified* values in function parameters.
+    Allows to use ``None`` as a proper value."""
 
 
 __undefined__ = _Undefined()
