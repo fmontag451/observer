@@ -14,11 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from setuptools import setup
+
 import glob
 import os
 import sys
 
-from setuptools import setup
 
 if __name__ == "__main__":
     DIRNAME = os.path.abspath(os.path.dirname(__file__))
@@ -27,11 +28,12 @@ if __name__ == "__main__":
     try:
         py_dirname = DIRNAME
         sys.path.insert(0, py_dirname)
-        from observer import __version__ as version
+    
+        import observer
+        version = observer.__version__
     finally:
         del sys.path[0]
-
-
+    
     def read_requirements(*filenames):
         requirements = []
         for filename in filenames:
@@ -39,19 +41,18 @@ if __name__ == "__main__":
             with open(fpath, "r") as f_in:
                 for line in f_in:
                     requirement = line.strip()
-                    if requirement not in requirements:
+                    if not requirement in requirements:
                         requirements.append(requirement)
         return requirements
-
-
+    
     # search executables
     scripts = []
     for filepath in glob.glob('bin/*'):
         if os.path.isfile(filepath) and os.access(filepath, os.X_OK):
             scripts.append(filepath)
-
+    
     # search packages
-    root_packages = ['observer']
+    root_packages = []
     packages = []
     for package in root_packages:
         package_dirname = os.path.join(DIRNAME, package)
@@ -60,20 +61,20 @@ if __name__ == "__main__":
                 rdirpath = os.path.relpath(dirpath, DIRNAME)
                 packages.append(os.path.normpath(rdirpath).replace(os.sep, '.'))
 
-    # Final setup
     setup(
         name="python-observer",
         version=version,
         requires=[],
         description="Python Observer Pattern",
         author="Federico Ficarelli",
-        author_email="toroidh@gmail.com",
+        author_email="federico.ficarelli@gmail.com",
         install_requires=(),
         package_data={},
-        # data_files=data_files,
+        #data_files=data_files,
         url="https://github.com/fmontag451/observer",
         packages=packages,
         scripts=scripts,
+        py_modules=['observer'],
         classifiers=[
             # status:
             #   3 - Alpha
@@ -82,12 +83,12 @@ if __name__ == "__main__":
             'Development Status :: 4 - Beta',
             # audience:
             'Intended Audience :: Developers',
-            'Topic :: Software Development :: Libraries',
+            'Topic :: Software Development :: Libraries :: Python Modules',
             # license:
             'License :: OSI Approved :: Apache Software License',
             # language:
             'Programming Language :: Python :: 3.4',
-            'Operating System :: OS Independent',
+            'Programming Language :: Python :: 2.7',
         ],
         keywords='observer design pattern',
     )

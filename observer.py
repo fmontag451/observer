@@ -18,6 +18,9 @@
 Types and utilities related to the `Observer Pattern <https://sourcemaking.com/design_patterns/observer>`_.
 """
 
+# pylint: skip-file
+# TODO
+
 import copy
 import threading
 import collections
@@ -82,7 +85,7 @@ class ObservableMixin(object):
         with self._lock:
             callbacks = {
                 ev: copy.copy(self._events[ev]) for ev in (event, self.__any_event__)
-                }
+            }
         # Lock released, now we can calmly  invoke all callbacks:
         for ev, callbacks in callbacks.items():
             for cb in callbacks:
