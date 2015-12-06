@@ -35,6 +35,7 @@ def observable(observable_type):
 def test_construction():
     with pytest.raises(ValueError):
         Observable()
+    Observable(observable_events=('ev', ), observers={'ev': (print, print)})
 
 
 def test_unknown_event(observable):

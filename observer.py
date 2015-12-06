@@ -62,6 +62,11 @@ class Observable(object):
         self._events[self.__any_event__] = set()
         # Thread safety:
         self._lock = lock_factory()
+        # Add initial observers
+        if observers is not __undefined__:
+            for ev, callbacks in observers.items():
+                for cb in callbacks:
+                    self.add_observer(cb, ev)
 
     def events(self):
         yield from self._events.keys()
