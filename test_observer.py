@@ -20,9 +20,9 @@ from observer import *
 
 @pytest.fixture
 def observable_type():
-    class MyObservable(ObservableMixin):
+    class MyObservable(Observable):
         def __init__(self, *args, **kwargs):
-            events = ('ev1', 'ev2', 'ev3')
+            events = ('ev1', 'ev2', 'ev3', None)
             super().__init__(*args, observable_events=events, **kwargs)
     return MyObservable
 
@@ -32,16 +32,9 @@ def observable(observable_type):
     return observable_type()
 
 
-def test_any_event(observable):
-    pass
-
-
-def test_remove_observer(observable):
-    pass
-
-
-def test_none_event(observable):
-    pass
+def test_construction():
+    with pytest.raises(ValueError):
+        Observable()
 
 
 def test_unknown_event(observable):
@@ -49,14 +42,30 @@ def test_unknown_event(observable):
         observable.add_observer(print, 'unknown')
 
 
+def test_signal(observable):
+    with pytest.raises(KeyError):
+        observable._signal_observers(event='unknown')
+
+
+def test_error(observable):
+    def callback(*args, **kwargs):
+        raise RuntimeError()
+    observable.add_observer(callback, 'ev1')
+    observable._signal_observers(event='ev1')
+
+
 def test_observers(observable):
     results = set()
     def callback(*args, event=None, canary=None, **kwargs):
         assert canary == "testvalue"
         results.add(event)
+    def error(*args, event=None, canary=None, **kwargs):
+        raise RuntimeError()
     # Register all observers
     for ev in observable.events():
         observable.add_observer(callback, ev)
+    # Register failing callback on all events:
+    observable.add_observer(error)
     # Trigger all events
     for ev in observable.events():
         observable._signal_observers(event=ev, canary="testvalue")

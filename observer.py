@@ -23,6 +23,7 @@ Types and utilities related to the `Observer Pattern <https://sourcemaking.com/d
 
 import copy
 import threading
+import logging
 
 
 __author__ = 'Federico Ficarelli'
@@ -32,7 +33,7 @@ __version__ = '0.0.1'
 
 
 __all__ = (
-    'ObservableMixin',
+    'Observable',
 )
 
 
@@ -43,17 +44,19 @@ class _Undefined(object):
 
 __undefined__ = _Undefined()
 __default_lock_factory__ = threading.RLock
+__default_logger__ = logging.getLogger(__name__)
 
 
-class ObservableMixin(object):
+class Observable(object):
 
     __any_event__ = '__any_event__'
 
-    def __init__(self, *args, observable_events=__undefined__, observers=__undefined__,
+    def __init__(self, *args, observable_events=__undefined__, observers=__undefined__, logger=__default_logger__,
                  lock_factory=__default_lock_factory__, **kwargs):
         if observable_events is __undefined__:
             raise ValueError("parameter 'observable_events' must be specified in construction")
         super().__init__(*args, **kwargs)
+        self._logger = logger
         # Storage setup: event -> callbacks
         self._events = {ev: set() for ev in observable_events}
         self._events[self.__any_event__] = set()
@@ -78,6 +81,8 @@ class ObservableMixin(object):
                     self._events[event].remove(callback)
 
     def _signal_observers(self, *args, event=__undefined__, **kwargs):
+        if event is __undefined__:
+            raise ValueError('event must be specified')
         if event not in self._events:
             raise KeyError('unknown specified event: {}'.format(event))
         # Add 'event' parameter to forwarded kwargs:
@@ -90,4 +95,7 @@ class ObservableMixin(object):
         # Lock released, now we can invoke all callbacks:
         for ev, callbacks in callbacks.items():
             for cb in callbacks:
-                cb(*args, **kwargs)
+                try:
+                    cb(*args, **kwargs)
+                except Exception as err:
+                    self._logger.exception("exception raised in callback '{}' triggered by event '{}'".format(cb, err))
