@@ -46,6 +46,8 @@ def test_unknown_event(observable):
 def test_signal(observable):
     with pytest.raises(KeyError):
         observable._signal_observers(event='unknown')
+    with pytest.raises(ValueError):
+        observable._signal_observers()
 
 
 def test_error(observable):
