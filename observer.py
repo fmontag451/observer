@@ -45,7 +45,9 @@ __default_logger__ = logging.getLogger(__name__)
 
 
 class Observable(object):
-    r"""
+    r"""Observable type as defined in the
+    `Observer Pattern <https://sourcemaking.com/design_patterns/observer>`_.
+
     Parameters
     ----------
     observable_events : iterable[any]
@@ -90,12 +92,15 @@ class Observable(object):
         yield from self._events.keys()
 
     def add_observer(self, callback, event=__undefined__):
-        """
+        """Register an observer for the specified event.
 
         Parameters
         ----------
         callback : callable
-        event : any
+            The callback to be registered.
+        event : any, optional
+            The event to be registered. If omitted, the specified
+            callback will be triggered by every event.
         """
         event = event if event is not __undefined__ else self.__any_event__
         if event not in self._events:
@@ -104,12 +109,15 @@ class Observable(object):
             self._events[event].add(callback)
 
     def remove_observer(self, callback, event=__undefined__):
-        """
+        """Removes a callable from the registered observers.
 
         Parameters
         ----------
         callback : callable
-        event : any
+            The callback to be removed.
+        event : any, optional
+            The event to be unregistered from. If omitted, the specified
+            callback will be removed from every event.
         """
         events = (event,) if event is not __undefined__ else self._events.keys()
         with self._lock:
@@ -118,13 +126,22 @@ class Observable(object):
                     self._events[event].remove(callback)
 
     def _notify_observers(self, *args, event=__undefined__, **kwargs):
-        r"""
+        r"""Notifies all observers the occurrence of an event.
 
         Parameters
         ----------
-        \*args
         event : any
+            The event to be notified. Must be among the registered events for
+            the instance.
+        \*args
+            Extra positional arguments to be forwarded to all observers.
         \*\*kwargs
+            Extra keyword arguments to be forwarded to all observers.
+
+        Notes
+        -----
+        Every exception raised from inside the callbacks will be ignored and
+        a proper log message will be emitted.
         """
         if event is __undefined__:
             raise ValueError('event must be specified')
@@ -143,4 +160,5 @@ class Observable(object):
                 try:
                     fun(*args, **kwargs)
                 except:  # pylint: disable=W0702
-                    self._logger.exception("exception raised in callback '%s' triggered by event '%s'", fun, event)
+                    self._logger.exception(
+                        "exception raised in callback '%s' triggered by event '%s'", fun, event)
