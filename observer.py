@@ -117,7 +117,7 @@ class Observable(object):
                 if event in self._events and callback in self._events[event]:
                     self._events[event].remove(callback)
 
-    def _signal_observers(self, *args, event=__undefined__, **kwargs):
+    def _notify_observers(self, *args, event=__undefined__, **kwargs):
         r"""
 
         Parameters

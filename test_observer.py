@@ -45,16 +45,16 @@ def test_unknown_event(observable):
 
 def test_signal(observable):
     with pytest.raises(KeyError):
-        observable._signal_observers(event='unknown')
+        observable._notify_observers(event='unknown')
     with pytest.raises(ValueError):
-        observable._signal_observers()
+        observable._notify_observers()
 
 
 def test_error(observable):
     def callback(*args, **kwargs):
         raise RuntimeError()
     observable.add_observer(callback, 'ev1')
-    observable._signal_observers(event='ev1')
+    observable._notify_observers(event='ev1')
 
 
 def test_observers(observable):
@@ -71,7 +71,7 @@ def test_observers(observable):
     observable.add_observer(error)
     # Trigger all events
     for ev in observable.events():
-        observable._signal_observers(event=ev, canary="testvalue")
+        observable._notify_observers(event=ev, canary="testvalue")
     # Check that every event has been triggered
     assert len(results.difference(set(observable.events()))) == 0
     # Reset
@@ -80,6 +80,6 @@ def test_observers(observable):
     observable.remove_observer(callback)
     # Trigger all events
     for ev in observable.events():
-        observable._signal_observers(event=ev)
+        observable._notify_observers(event=ev)
     # Check that no callback has been triggered
     assert len(results) == 0
