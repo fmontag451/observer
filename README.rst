@@ -7,7 +7,7 @@ A minimal Python implementation of the `Observer Pattern`_.
 *Observer requires Python version 3.4 or greater.*
 
 
-|build-status| |coverage-status| |documentation-status| |license-status|
+|build-status| |coverage-status| |license-status|
 
 
 .. _Observer Pattern:
@@ -16,10 +16,6 @@ A minimal Python implementation of the `Observer Pattern`_.
 .. |build-status| image:: https://travis-ci.org/fmontag451/observer.svg?branch=master
     :target: https://travis-ci.org/fmontag451/observer
     :alt: Build status
-
-.. |documentation-status| image:: https://readthedocs.org/projects/observer/badge/?version=latest
-    :target: http://observer.readthedocs.org/en/latest/?badge=latest
-    :alt: Documentation status
 
 .. |coverage-status| image:: https://coveralls.io/repos/fmontag451/observer/badge.svg?branch=master&service=github
     :target: https://coveralls.io/github/fmontag451/observer?branch=master
