@@ -75,12 +75,12 @@ class Observable(object):
         if observable_events is __undefined__:
             raise ValueError("parameter 'observable_events' must be specified in construction")
         super().__init__(*args, **kwargs)
-        self._logger = logger
+        self._observer_logger = logger
         # Storage setup: event -> callbacks
-        self._events = {ev: set() for ev in observable_events}
-        self._events[self.__any_event__] = set()
+        self._observable_events = {ev: set() for ev in observable_events}
+        self._observable_events[self.__any_event__] = set()
         # Thread safety:
-        self._lock = lock_factory()
+        self._observer_lock = lock_factory()
         # Add initial observers
         if observers is not __undefined__:
             for ev, callbacks in observers.items():  # pylint: disable=E1101, C0103
@@ -89,7 +89,7 @@ class Observable(object):
 
     def events(self):
         """Iterator over available events."""
-        yield from self._events.keys()
+        yield from self._observable_events.keys()
 
     def add_observer(self, callback, event=__undefined__):
         """Register an observer for the specified event.
@@ -103,10 +103,10 @@ class Observable(object):
             callback will be triggered by every event.
         """
         event = event if event is not __undefined__ else self.__any_event__
-        if event not in self._events:
+        if event not in self._observable_events:
             raise KeyError('unknown specified event: {}'.format(event))
-        with self._lock:
-            self._events[event].add(callback)
+        with self._observer_lock:
+            self._observable_events[event].add(callback)
 
     def remove_observer(self, callback, event=__undefined__):
         """Removes a callable from the registered observers.
@@ -119,11 +119,11 @@ class Observable(object):
             The event to be unregistered from. If omitted, the specified
             callback will be removed from every event.
         """
-        events = (event,) if event is not __undefined__ else self._events.keys()
-        with self._lock:
+        events = (event,) if event is not __undefined__ else self._observable_events.keys()
+        with self._observer_lock:
             for event in events:
-                if event in self._events and callback in self._events[event]:
-                    self._events[event].remove(callback)
+                if event in self._observable_events and callback in self._observable_events[event]:
+                    self._observable_events[event].remove(callback)
 
     def _notify_observers(self, *args, event=__undefined__, **kwargs):
         r"""Notifies all observers the occurrence of an event.
@@ -145,20 +145,20 @@ class Observable(object):
         """
         if event is __undefined__:
             raise ValueError('event must be specified')
-        if event not in self._events:
+        if event not in self._observable_events:
             raise KeyError('unknown specified event: {}'.format(event))
         # Add 'event' parameter to forwarded kwargs:
         kwargs['event'] = event
         # Make a tmp copy of callbacks in order to release the lock as quick as possible:
-        with self._lock:
+        with self._observer_lock:
             callbacks = {
-                ev: copy.copy(self._events[ev]) for ev in (event, self.__any_event__)
-            }
+                ev: copy.copy(self._observable_events[ev]) for ev in (event, self.__any_event__)
+                }
         # Lock released, now we can invoke all callbacks:
         for event, callbacks in callbacks.items():
             for fun in callbacks:
                 try:
                     fun(*args, **kwargs)
                 except:  # pylint: disable=W0702
-                    self._logger.exception(
+                    self._observer_logger.exception(
                         "exception raised in callback '%s' triggered by event '%s'", fun, event)
