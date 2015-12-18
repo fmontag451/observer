@@ -17,8 +17,8 @@ A minimal Python implementation of the `Observer Pattern`_.
     :target: https://travis-ci.org/nazavode/observer
     :alt: Build status
 
-.. |coverage-status| image:: https://coveralls.io/repos/fmontag451/observer/badge.svg?branch=master&service=github
-    :target: https://coveralls.io/github/fmontag451/observer?branch=master
+.. |coverage-status| image:: https://coveralls.io/repos/nazavode/observer/badge.svg?branch=master&service=github
+    :target: https://coveralls.io/github/nazavode/observer?branch=master
     :alt: Coverage report
 
 .. |license-status| image:: https://img.shields.io/badge/license-Apache2.0-blue.svg
