@@ -13,8 +13,8 @@ A minimal Python implementation of the `Observer Pattern`_.
 .. _Observer Pattern:
     https://sourcemaking.com/design_patterns/observer
 
-.. |build-status| image:: https://travis-ci.org/fmontag451/observer.svg?branch=master
-    :target: https://travis-ci.org/fmontag451/observer
+.. |build-status| image:: https://travis-ci.org/nazavode/observer.svg?branch=master
+    :target: https://travis-ci.org/nazavode/observer
     :alt: Build status
 
 .. |coverage-status| image:: https://coveralls.io/repos/fmontag451/observer/badge.svg?branch=master&service=github
